@@ -9,14 +9,15 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());
-  app.enableCors({
-    origin: ['http://localhost:5173'],
-  });
+  // app.enableCors({
+  //   origin: ['http://localhost:5173'],
+  // });
   const swagger: SwaggerInfrastucture = new SwaggerInfrastucture();
   swagger.initialize(app);
   const port: number = appConfigInstance.PORT;
 
   await app.listen(port);
+  console.log(`http://localhost:${port}/swagger`);
 }
 
 bootstrap();
