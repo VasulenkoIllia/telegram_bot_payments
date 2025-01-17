@@ -1,75 +1,99 @@
 import { Injectable } from '@nestjs/common';
-import { Context, Markup, Telegraf } from 'telegraf';
+import { Markup, Telegraf } from 'telegraf';
 import { InjectBot, On, Start, Update } from 'nestjs-telegraf';
+import { MyContext } from '../../../common/interfaces/telegram/my-context.interface';
 
 @Injectable()
 @Update()
 export class BotService {
-  private userSelections: Record<
-    number,
-    { subscription?: string; payment?: string }
-  > = {};
-  // Масив підписок
   private subscriptions = [
     { name: 'Basic', cost: 10 },
     { name: 'Standard', cost: 20 },
     { name: 'Premium', cost: 30 },
   ];
-  // Типи оплати
+
   private paymentMethods = ['Stars', 'TON', 'Bank'];
 
-  constructor(@InjectBot() private readonly bot: Telegraf) {}
+  constructor(@InjectBot() readonly bot: Telegraf<MyContext>) {}
 
-  // Команда /start
   @Start()
-  async start(ctx: Context) {
-    // Відправляємо меню підписок
-    await ctx.reply(
-      'Choose your subscription:',
-      this.generateSubscriptionKeyboard(),
-    );
+  async start(ctx: MyContext) {
+    ctx.session = {}; // Очищаємо сесію при старті
+
+    await ctx.reply('Вітаємо! Оберіть опцію:', {
+      reply_markup: {
+        keyboard: [['Профіль', 'Інфо', 'Підписка']],
+        resize_keyboard: true,
+      },
+    });
   }
 
-  // Обробка вибору підписки
-  @On('callback_query')
-  async handleCallbackQuery(ctx: Context) {
-    if (ctx.callbackQuery && 'data' in ctx.callbackQuery) {
-      const callbackData = ctx.callbackQuery.data;
+  @On('text')
+  async handleText(ctx: MyContext) {
+    const message = ctx.message;
 
-      // Обробка вибору підписки
+    // Перевіряємо, чи повідомлення містить текст
+    if (message && 'text' in message) {
+      const text = message.text;
+      switch (text) {
+        case 'Профіль':
+          await ctx.reply('Ваш профіль: ...');
+          break;
+        case 'Інфо':
+          await ctx.reply('Це бот для вибору підписок і оплати.');
+          break;
+        case 'Підписка':
+          await this.handleSubscription(ctx); // Перехід до вибору підписки
+          break;
+        default:
+          await ctx.reply('Будь ласка, оберіть опцію з меню.');
+      }
+    } else {
+      console.log('Повідомлення не містить тексту.');
+    }
+  }
+
+  async handleSubscription(ctx: MyContext) {
+    await ctx.reply('Оберіть підписку:', this.generateSubscriptionKeyboard());
+  }
+
+  @On('callback_query')
+  async handleCallbackQuery(ctx: MyContext) {
+    const callbackQuery = ctx.callbackQuery;
+
+    if ('data' in callbackQuery) {
+      const callbackData = callbackQuery.data;
+
       if (callbackData.startsWith('select_subscription_')) {
         const selectedSubscription = callbackData.replace(
           'select_subscription_',
           '',
         );
-        this.saveUserSelection(ctx, { subscription: selectedSubscription });
+        ctx.session.subscription = selectedSubscription; // Зберігаємо вибір підписки
 
         await ctx.editMessageText(
-          `You selected subscription: ${selectedSubscription}`,
+          `Ви обрали підписку: ${selectedSubscription}`,
         );
         await ctx.reply(
-          'Now, choose your payment method:',
+          'Оберіть спосіб оплати:',
           this.generatePaymentKeyboard(),
         );
       }
 
-      // Обробка вибору типу оплати
       if (callbackData.startsWith('select_payment_')) {
         const selectedPayment = callbackData.replace('select_payment_', '');
-        this.saveUserSelection(ctx, { payment: selectedPayment });
+        ctx.session.paymentMethod = selectedPayment; // Зберігаємо вибір способу оплати
 
-        const userSelection = this.userSelections[ctx.from.id];
-        await ctx.editMessageText(
-          `You selected subscription: ${userSelection.subscription} and payment method: ${selectedPayment}`,
+        const subscription = ctx.session.subscription ?? 'не вибрано';
+        await ctx.reply(
+          `Ви обрали підписку: ${subscription} і спосіб оплати: ${selectedPayment}.`,
         );
       }
 
-      // Відповідь на callback-запит
-      await ctx.answerCbQuery();
+      await ctx.answerCbQuery(); // Завершення callback-запиту
     }
   }
 
-  // Генеруємо клавіатуру підписок
   private generateSubscriptionKeyboard() {
     return Markup.inlineKeyboard(
       this.subscriptions.map((subs) => [
@@ -81,32 +105,11 @@ export class BotService {
     );
   }
 
-  // Генеруємо клавіатуру типів оплати
   private generatePaymentKeyboard() {
     return Markup.inlineKeyboard(
       this.paymentMethods.map((method) => [
         Markup.button.callback(method, `select_payment_${method}`),
       ]),
     );
-  }
-
-  // Зберігаємо вибір користувача
-  private saveUserSelection(
-    ctx: Context,
-    selection: { subscription?: string; payment?: string },
-  ) {
-    const userId = ctx.from.id;
-
-    if (!this.userSelections[userId]) {
-      this.userSelections[userId] = {};
-    }
-
-    if (selection.subscription) {
-      this.userSelections[userId].subscription = selection.subscription;
-    }
-
-    if (selection.payment) {
-      this.userSelections[userId].payment = selection.payment;
-    }
   }
 }
