@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "esModuleInterop": true,
+    "target": "es6",
+    "module": "commonjs",
+    "rootDir": "src",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "resolveJsonModule": true,
+    "outDir": "./dist",
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tests"
+  ]
+}

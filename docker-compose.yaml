@@ -1,0 +1,21 @@
+name: Telegram_bot_Payments
+services:
+  postgres:
+    image: postgres:13.3
+    environment:
+      POSTGRES_DB: "Telegram_bot_Payments"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+    ports:
+      - 5433:5432
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
