@@ -14,7 +14,12 @@ export class BotService {
 
   @Start()
   async start(ctx: MyContext) {
-    ctx.session = {}; // Очищаємо сесію при старті
+    ctx.session = {
+      profileStep: undefined,
+      profile: undefined,
+      subscription: undefined,
+      paymentMethod: undefined,
+    }; // Очищаємо сесію при старті
 
     await ctx.reply('Вітаємо! Оберіть опцію:', {
       reply_markup: {
