@@ -89,7 +89,6 @@ export class ProfileService {
         }
         break;
       case 'phone':
-        ctx.session.profile.phone = text;
         ctx.session.profileStep = undefined; // Завершуємо збір даних
         await this.finalizeProfile(ctx);
         break;
