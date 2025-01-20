@@ -18,6 +18,7 @@ async function bootstrap() {
 
   await app.listen(port);
   console.log(`http://localhost:${port}/swagger`);
+  console.log(`https://t.me/payments_test_rtn_bot`);
 }
 
 bootstrap();

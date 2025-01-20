@@ -36,7 +36,7 @@ export class SubscriptionService {
     const selectedSubscription = this.findSubscription(subscription);
 
     if (!selectedSubscription) {
-      await ctx.reply('Обрана підписка не знайдена.');
+      await ctx.reply('Обрана підписка не знайдеzна.');
       return;
     }
 
