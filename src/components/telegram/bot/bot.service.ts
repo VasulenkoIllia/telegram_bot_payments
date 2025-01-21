@@ -6,6 +6,7 @@ import { SubscriptionService } from './subscription/subscription.service';
 import { ProfileService } from './profile/profile.service';
 import { message } from 'telegraf/filters';
 import { WalletService } from '../../payments/ton/wallet.service';
+import { StarsService } from '../../payments/stars/stars';
 
 @Injectable()
 @Update()
@@ -15,6 +16,7 @@ export class BotService {
     private readonly subscriptionService: SubscriptionService,
     private readonly profileService: ProfileService,
     private readonly walletService: WalletService,
+    private readonly startsService: StarsService,
   ) {}
 
   @Start()
@@ -32,7 +34,7 @@ export class BotService {
       reply_markup: {
         keyboard: [
           ['Профіль', 'Інфо', 'Підписка', 'Гаманці'],
-          ['/connect', '/disconnect', '/my_wallet', '/send_tx'],
+          ['/connect', '/disconnect', '/my_wallet', '/send_tx', '/stars'],
         ],
         resize_keyboard: true,
       },
@@ -81,6 +83,9 @@ export class BotService {
             break;
           case '/my_wallet':
             await this.walletService.handleShowMyWalletCommand(ctx);
+            break;
+          case '/stars':
+            await this.startsService.sendInvoice(ctx, ctx.from!.id);
             break;
           default:
             await ctx.reply('Будь ласка, оберіть опцію з меню.');
@@ -207,5 +212,15 @@ export class BotService {
 
     // Відповідь на callback запит, щоб зняти стан "loading" з кнопок
     await ctx.answerCbQuery();
+  }
+
+  @On('pre_checkout_query')
+  async handlePreCheckoutQuery(ctx: MyContext) {
+    await this.startsService.onPreCheckout(ctx);
+  }
+
+  @On('successful_payment')
+  async handleSuccessfulPayment(ctx: MyContext) {
+    await this.startsService.onSuccesssfullPayment(ctx);
   }
 }
