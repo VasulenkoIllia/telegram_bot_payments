@@ -19,3 +19,10 @@ services:
     restart: unless-stopped
     tty: true
     stdin_open: true
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: redis-stack
+    ports:
+      - "127.0.0.1:6379:6379"
+    restart: unless-stopped
+    command: [ "redis-server", "--appendonly", "yes" ]
