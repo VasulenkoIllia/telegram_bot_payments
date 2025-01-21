@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: "admin"
       POSTGRES_PASSWORD: "admin"
     ports:
-      - 5433:5432
+      - "5433:5432"
     deploy:
       resources:
         limits:
@@ -19,10 +19,10 @@ services:
     restart: unless-stopped
     tty: true
     stdin_open: true
-  redis:
-    image: redis/redis-stack-server:latest
-    container_name: redis-stack
-    ports:
-      - "127.0.0.1:6379:6379"
-    restart: unless-stopped
-    command: [ "redis-server", "--appendonly", "yes" ]
+#  redis:
+#    image: redis/redis-stack-server:latest
+#    container_name: redis-stack
+#    ports:
+#      - "6379:6379"
+#    restart: unless-stopped
+#    command: [ "redis-server", "--appendonly", "yes" ]

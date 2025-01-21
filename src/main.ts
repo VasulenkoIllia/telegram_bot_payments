@@ -3,9 +3,11 @@ import { AppModule } from './app.module';
 import { SwaggerInfrastucture } from './infrastructure/swagger/swagger.infrastructure';
 import { appConfigInstance } from './infrastructure/app-config/app-config.infrastructure';
 import { ValidationPipe } from '@nestjs/common';
+import { initRedisClient } from './components/payments/ton/ton-connect/storage';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {});
+  await initRedisClient();
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());

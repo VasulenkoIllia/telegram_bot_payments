@@ -3,7 +3,7 @@ import {
   isTelegramUrl,
   WalletInfoRemote,
 } from '@tonconnect/sdk';
-import { InlineKeyboardButton } from 'node-telegram-bot-api';
+import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 
 export const pTimeoutException = Symbol();
 
@@ -53,7 +53,7 @@ export function convertDeeplinkToUniversalLink(
 export async function buildUniversalKeyboard(
   link: string,
   wallets: WalletInfoRemote[],
-): Promise<InlineKeyboardButton[]> {
+): Promise<InlineKeyboardButton[][]> {
   const atWallet = wallets.find(
     (wallet) => wallet.appName.toLowerCase() === process.env.AT_WALLET_APP_NAME,
   );
@@ -64,7 +64,7 @@ export async function buildUniversalKeyboard(
       )
     : undefined;
 
-  const keyboard = [
+  const keyboard: InlineKeyboardButton[] = [
     {
       text: 'Choose a Wallet',
       callback_data: JSON.stringify({ method: 'chose_wallet' }),
@@ -84,5 +84,6 @@ export async function buildUniversalKeyboard(
     });
   }
 
-  return keyboard;
+  // Перетворюємо на двовимірний масив
+  return [keyboard];
 }
