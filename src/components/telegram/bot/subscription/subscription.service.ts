@@ -78,11 +78,25 @@ export class SubscriptionService {
     if (ctx.callbackQuery?.message?.message_id) {
       await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
     }
-
     // Відправляємо підтвердження
     await ctx.reply(
       `Ви обрали підписку: <b>${selectedSubscription.name} (${selectedSubscription.cost}$)</b> і спосіб оплати: <b>${paymentMethod}</b>.`,
-      { parse_mode: 'HTML' },
+      {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: 'pay', // Текст кнопки
+                callback_data: JSON.stringify({
+                  action: 'paySub',
+                  subCost: selectedSubscription.cost,
+                }), // Дані для callback
+              },
+            ],
+          ],
+        },
+      },
     );
   }
 

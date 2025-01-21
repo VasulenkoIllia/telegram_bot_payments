@@ -30,7 +30,10 @@ export class BotService {
 
     await ctx.reply('Вітаємо! Оберіть опцію:', {
       reply_markup: {
-        keyboard: [['Профіль', 'Інфо', 'Підписка', 'Гаманці']],
+        keyboard: [
+          ['Профіль', 'Інфо', 'Підписка', 'Гаманці'],
+          ['/connect', '/disconnect', '/my_wallet', '/send_tx'],
+        ],
         resize_keyboard: true,
       },
     });
@@ -66,6 +69,18 @@ export class BotService {
             break;
           case 'Гаманці':
             await this.walletService.handleWalletCommand(ctx, text);
+            break;
+          case '/connect':
+            await this.walletService.handleConnectCommand(ctx);
+            break;
+          case '/send_tx':
+            await this.walletService.handleSendTXCommand(ctx);
+            break;
+          case '/disconnect':
+            await this.walletService.handleDisconnectCommand(ctx);
+            break;
+          case '/my_wallet':
+            await this.walletService.handleShowMyWalletCommand(ctx);
             break;
           default:
             await ctx.reply('Будь ласка, оберіть опцію з меню.');
@@ -145,6 +160,22 @@ export class BotService {
           selectedSubscription,
         );
       }
+      if (callbackData.includes('paySub')) {
+        if ('data' in callbackQuery) {
+          const callbackData = callbackQuery.data;
+
+          // Спроба розпарсити JSON
+          let payload: any;
+          try {
+            payload = JSON.parse(callbackData);
+            console.log('payload', payload);
+            await this.walletService.handleSendTXCommand(ctx, payload.subCost);
+          } catch (error) {
+            console.error('Invalid callback data:', callbackData);
+            return;
+          }
+        }
+      }
 
       // Обробка вибору методу оплати (Payment method handling)
       if (callbackData.startsWith('select_payment_')) {
@@ -154,7 +185,7 @@ export class BotService {
           selectedPayment,
         );
       }
-      console.log(callbackData);
+      // console.log(callbackData);
       // Обробка для гаманців (Wallet handling)
       if (
         callbackData.includes('chose_wallet') ||
