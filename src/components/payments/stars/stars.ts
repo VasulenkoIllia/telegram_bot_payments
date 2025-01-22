@@ -14,7 +14,7 @@ export class StarsService {
         currency: 'USD',
         prices: [{ label: product, amount }],
         title: product,
-        provider_token: process.env.PROVIDER_TOKEN || '', // Токен провайдера
+        provider_token: '', // Токен провайдера
         description: `Отримайте преміум-версію вже зараз!`,
         payload, // Унікальний ідентифікатор для інвойсу
         photo_url:
