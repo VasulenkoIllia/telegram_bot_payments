@@ -5,16 +5,18 @@ import { MyContext } from '../../../common/interfaces/telegram/my-context.interf
 @Injectable()
 export class StarsService {
   async sendInvoice(ctx: MyContext, chatId: number) {
-    const amount = 100; // Сума у центрах (1.00 USD = 100)
+    const amount = 1; // Сума у центрах (1.00 USD = 100)
     const product = 'Premium-version';
     const payload = randomUUID();
 
     try {
+
       await ctx.telegram.sendInvoice(chatId, {
-        currency: 'USD',
+        currency: 'usd',
+        // currency: 'XTR',
         prices: [{ label: product, amount }],
         title: product,
-        provider_token: '', // Токен провайдера
+        provider_token:'', // Токен провайдера
         description: `Отримайте преміум-версію вже зараз!`,
         payload, // Унікальний ідентифікатор для інвойсу
         photo_url:
